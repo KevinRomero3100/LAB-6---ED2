@@ -5,8 +5,4 @@
     <RootNamespace>LAB_6___Encryption_Algorithms</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Autilares\" />
-  </ItemGroup>
-
 </Project>

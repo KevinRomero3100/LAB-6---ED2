@@ -6,4 +6,14 @@
     <RootNamespace>LAB_6___ConsoleApplication</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LAB_6___Encryption_Algorithms\LAB_6___Encryption_Algorithms.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LAB_6___Encryption_Algorithms">
+      <HintPath>..\LAB_6___Encryption_Algorithms\bin\Debug\netcoreapp3.1\LAB_6___Encryption_Algorithms.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
