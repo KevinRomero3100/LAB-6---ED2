@@ -10,6 +10,6 @@ namespace LAB_6___Encryption_Algorithms.Interfaces
     {
         public Parameters GetKey(Parameters data);
         public byte[] Encrypt(Parameters data, byte[] bufer);
-        //public byte[] Decrypt(Parameters data, byte[] bufer);
+        public byte[] Decrypt(Parameters data, byte[] bufer);
     }
 }

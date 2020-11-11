@@ -17,8 +17,8 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         private int E { get; set; }
         private int D { get; set; }
 
-        List<long> outrsaEncryp = new List<long>();
-        List<byte> outrsaDencryp = new List<byte>();
+        List<long> outrsaEncrypt = new List<long>();
+        List<byte> outrsaDencrypt = new List<byte>();
         List<long> inRsa = new List<long>();
 
         #region Encrypt
@@ -28,7 +28,7 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
             foreach (var item in bufer)
             {
                 var bigIntegerOperation = BigInteger.Pow(item, data.e) % data.n;
-                outrsaEncryp.Add((long)bigIntegerOperation);
+                outrsaEncrypt.Add((long)bigIntegerOperation);
             }
             return ConvertToByte();
         }
@@ -39,9 +39,9 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
             int splitSize = 8;
             byte newbyte;
 
-            int binaryMax = Convert.ToString(outrsaEncryp.Max(), 2).Length;
+            int binaryMax = Convert.ToString(outrsaEncrypt.Max(), 2).Length;
 
-            foreach (var item in outrsaEncryp)
+            foreach (var item in outrsaEncrypt)
             {
                 var newBinary = Convert.ToString(item, 2);
                 if (newBinary.Length <= binaryMax)
@@ -76,7 +76,7 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
             }
             validBytes.Insert(0, Convert.ToByte(binaryMax));
             return validBytes.ToArray();
-        } // Pasa a bytes todos los bytes cifrados por rca
+        } // Pasa a bytes todos los bytes cifrados por rsa
         #endregion
 
         #region KEY
@@ -192,6 +192,53 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         }
         #endregion
 
+        public byte[] Decrypt(Parameters data, byte[] bufer)
+        {
+            List<byte> decrypt = bufer.ToList();
 
+            int originalBinariLength = decrypt[0];
+            decrypt.RemoveAt(0);
+            ConvertToByte(decrypt, originalBinariLength);
+
+            foreach (var item in inRsa)
+            {
+                var bigIntegerOperation = BigInteger.Pow(item, data.d) % data.n;
+                outrsaDencrypt.Add((byte)bigIntegerOperation);
+            }
+
+            return outrsaDencrypt.ToArray();
+        }
+
+        void ConvertToByte(List<byte> content, int originalBinary)
+        {
+            string binaryCode = "";
+
+            foreach (var item in content)
+            {
+                var newBinary = Convert.ToString(item, 2);
+                if (newBinary.Length <= 8)
+                {
+                    while (newBinary.Length != 8)
+                    {
+                        newBinary = "0" + newBinary;
+                    }
+                    binaryCode += newBinary;
+                }
+            }
+
+            for (int i = 0; i < binaryCode.Length; i += originalBinary)
+            {
+                if (i + originalBinary > binaryCode.Length)
+                {
+                    return;
+                }
+                else
+                {
+                    var newInt = Convert.ToInt64(binaryCode.Substring(i, originalBinary), 2);
+                    inRsa.Add(newInt);
+                }
+            }
+
+        }
     }
 }
