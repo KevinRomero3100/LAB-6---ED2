@@ -17,8 +17,10 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         private int E { get; set; }
         private int D { get; set; }
 
+        private int N { get; set; }
+
         List<long> outrsaEncrypt = new List<long>();
-        List<byte> outrsaDencrypt = new List<byte>();
+        List<long> outrsaDencrypt = new List<long>();
         List<long> inRsa = new List<long>();
 
         #region Encrypt
@@ -27,8 +29,7 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         {
             foreach (var item in bufer)
             {
-                var bigIntegerOperation = BigInteger.Pow(item, data.e) % data.n;
-                outrsaEncrypt.Add((long)bigIntegerOperation);
+                outrsaEncrypt.Add((long)BigInteger.ModPow(item, data.e, data.n));
             }
             return ConvertToByte();
         }
@@ -195,18 +196,13 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         public byte[] Decrypt(Parameters data, byte[] bufer)
         {
             List<byte> decrypt = bufer.ToList();
-
             int originalBinariLength = decrypt[0];
             decrypt.RemoveAt(0);
+            N = data.n;
+            D = data.d;
             ConvertToByte(decrypt, originalBinariLength);
 
-            foreach (var item in inRsa)
-            {
-                var bigIntegerOperation = BigInteger.Pow(item, data.d) % data.n;
-                outrsaDencrypt.Add((byte)bigIntegerOperation);
-            }
-
-            return outrsaDencrypt.ToArray();
+            return ConvertToByte(outrsaDencrypt);
         }
 
         void ConvertToByte(List<byte> content, int originalBinary)
@@ -235,10 +231,20 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
                 else
                 {
                     var newInt = Convert.ToInt64(binaryCode.Substring(i, originalBinary), 2);
-                    inRsa.Add(newInt);
+                    outrsaDencrypt.Add((long)(BigInteger.ModPow(newInt, D, N)));
                 }
             }
 
+        }
+
+        byte[] ConvertToByte(List<long> Content)
+        {
+            byte[] array = new byte[Content.Count];
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] = Convert.ToByte(Content[i]);
+            }
+            return array;
         }
     }
 }

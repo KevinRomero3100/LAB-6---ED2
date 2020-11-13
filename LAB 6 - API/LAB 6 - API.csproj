@@ -5,5 +5,9 @@
     <RootNamespace>LAB_6___API</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LAB_6___Encryption_Algorithms\LAB_6___Encryption_Algorithms.csproj" />
+  </ItemGroup>
+
 
 </Project>
