@@ -132,12 +132,12 @@ namespace LAB_6___API
                 case "txt":
                     result = new RSA_Algorithm().Encrypt(parameters, buffer);
                     OutFileName = nameOut + ".rsa";
-                    OutFilePath = path + $"\\Data\\Salida\\" + OutFileName + ".rsa";
+                    OutFilePath = path + $"\\Data\\Salida\\" + OutFileName;
                     break;
                 case "rsa":
                     result = new RSA_Algorithm().Decrypt(parameters, buffer);
                     OutFileName = nameOut + ".txt";
-                    OutFilePath = path + $"\\Data\\Salida\\" + OutFileName + ".txt";
+                    OutFilePath = path + $"\\Data\\Salida\\" + OutFileName;
                     break;
                 default: throw new Exception();
             }

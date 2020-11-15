@@ -115,11 +115,11 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         void GetE()
         {
             List<int> randoms = new List<int>();
-            int e = Fhi;
+            int e = 1;
             do
             {
-                e--;
-            } while (!chekedE(e) && e > 1);
+                e++;
+            } while (!chekedE(e) && e < Fhi);
             E = e;
         }
 
@@ -187,18 +187,31 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
 
         void ConvertToByte(List<byte> content, int originalBinary)
         {
+            int cout = 0;
+            try
+            {
+
+           
             string binaryCode = "";
 
             foreach (var item in content)
             {
+                    cout++;
                  binaryCode += Convert.ToString(item, 2).PadLeft(8, '0');
                 while(binaryCode.Length > originalBinary)
                 {
                     var newInt = Convert.ToInt64(binaryCode.Substring(0, originalBinary), 2);
-                    outrsaDencrypt.Add((byte)(BigInteger.ModPow(newInt, D, N)));
+                    var test = (byte)BigInteger.ModPow(newInt, D, N);
+                    outrsaDencrypt.Add(Convert.ToByte(test));
                     binaryCode = binaryCode.Remove(0, originalBinary);
                 }
 
+            }
+            }
+            catch (Exception)
+            {
+                var test = cout;
+                throw;
             }
         }
     }
