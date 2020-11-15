@@ -20,8 +20,7 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         private int N { get; set; }
 
         List<long> outrsaEncrypt = new List<long>();
-        List<long> outrsaDencrypt = new List<long>();
-        List<long> inRsa = new List<long>();
+        List<byte> outrsaDencrypt = new List<byte>();
 
         #region Encrypt
 
@@ -37,43 +36,25 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         {
             List<byte> validBytes = new List<byte>();
             string binaryCode = "";
-            int splitSize = 8;
-            byte newbyte;
-
             int binaryMax = Convert.ToString(outrsaEncrypt.Max(), 2).Length;
-
             foreach (var item in outrsaEncrypt)
             {
-                var newBinary = Convert.ToString(item, 2);
-                if (newBinary.Length <= binaryMax)
+                binaryCode += Convert.ToString(item, 2).PadLeft( binaryMax, '0');
+                while(binaryCode.Length > 8)
                 {
-                    //Balance de 0 faltantes para llagar al maximo re querido
-                    while (newBinary.Length != binaryMax)
-                    {
-                        newBinary = "0" + newBinary;
-                    }
-                    binaryCode += newBinary;
+                    validBytes.Add(Convert.ToByte(binaryCode.Substring(0, 8), 2));
+                    binaryCode = binaryCode.Remove(0, 8);
                 }
             }
-
-            for (int i = 0; i < binaryCode.Length; i += splitSize)
+            if (binaryCode.Length > 0 && binaryCode.Length < 8 )
             {
-                if (i + splitSize > binaryCode.Length)
-                {
-                    splitSize = binaryCode.Length - i;
-                    var split = binaryCode.Substring(i, splitSize);
-                    while (split.Length < 8)
-                    {
-                        split = split + "0";
-                    }
-                    newbyte = Convert.ToByte(split, 2);
-                    validBytes.Add(newbyte);
-                }
-                else
-                {
-                    newbyte = Convert.ToByte(binaryCode.Substring(i, splitSize), 2);
-                    validBytes.Add(newbyte);
-                }
+                
+                validBytes.Add(Convert.ToByte(binaryCode.PadRight(8, '0'), 2));
+                binaryCode = "";
+            }
+            else if (binaryCode.Length == 8)
+            {
+                validBytes.Add(Convert.ToByte(binaryCode, 2));
             }
             validBytes.Insert(0, Convert.ToByte(binaryMax));
             return validBytes.ToArray();
@@ -134,11 +115,11 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         void GetE()
         {
             List<int> randoms = new List<int>();
-            int e = 1;
+            int e = Fhi;
             do
             {
-                e++;
-            } while (!chekedE(e) && e < Fhi);
+                e--;
+            } while (!chekedE(e) && e > 1);
             E = e;
         }
 
@@ -201,8 +182,7 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
             N = data.n;
             D = data.d;
             ConvertToByte(decrypt, originalBinariLength);
-
-            return ConvertToByte(outrsaDencrypt);
+            return outrsaDencrypt.ToArray();
         }
 
         void ConvertToByte(List<byte> content, int originalBinary)
@@ -211,40 +191,15 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
 
             foreach (var item in content)
             {
-                var newBinary = Convert.ToString(item, 2);
-                if (newBinary.Length <= 8)
+                 binaryCode += Convert.ToString(item, 2).PadLeft(8, '0');
+                while(binaryCode.Length > originalBinary)
                 {
-                    while (newBinary.Length != 8)
-                    {
-                        newBinary = "0" + newBinary;
-                    }
-                    binaryCode += newBinary;
+                    var newInt = Convert.ToInt64(binaryCode.Substring(0, originalBinary), 2);
+                    outrsaDencrypt.Add((byte)(BigInteger.ModPow(newInt, D, N)));
+                    binaryCode = binaryCode.Remove(0, originalBinary);
                 }
-            }
 
-            for (int i = 0; i < binaryCode.Length; i += originalBinary)
-            {
-                if (i + originalBinary > binaryCode.Length)
-                {
-                    return;
-                }
-                else
-                {
-                    var newInt = Convert.ToInt64(binaryCode.Substring(i, originalBinary), 2);
-                    outrsaDencrypt.Add((long)(BigInteger.ModPow(newInt, D, N)));
-                }
             }
-
-        }
-
-        byte[] ConvertToByte(List<long> Content)
-        {
-            byte[] array = new byte[Content.Count];
-            for (int i = 0; i < array.Length; i++)
-            {
-                array[i] = Convert.ToByte(Content[i]);
-            }
-            return array;
         }
     }
 }

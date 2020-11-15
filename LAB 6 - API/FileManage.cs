@@ -16,9 +16,10 @@ namespace LAB_6___API
         public string InFileName { get; set; }
         public string OutFilePath { get; set; }
         public string OutFileName { get; set; }
+
         public void SaveFile(IFormFile file, string path, string name)
         {
-            string file_path = path + $"\\Data\\temporal\\{name}";
+            string file_path = path + $"\\Data\\Entrada\\{name}";
             if (File.Exists(file_path))
             {
                 File.Delete(file_path);
@@ -30,80 +31,66 @@ namespace LAB_6___API
             return;
         }
 
-
         public void DeleteFile(string path, string name)
         {
             string file_path = $"{path}\\Data\\temporal\\{name}";
             File.Delete(file_path);
         }
 
-
-        public void EncryptOrDecryptManage(string path, string file_name, string key_name, string nameOut)
+        public void CreateDirectoriesForData(string path)
         {
-
-            byte[] buffer;
-
-            string file_path = path + $"\\Data\\temporal\\{file_name}";
-            using (FileStream fs = new FileStream(file_path, FileMode.OpenOrCreate))
+            var file_path = path + "\\Data";
+            if (!Directory.Exists(file_path))
             {
-                buffer = new byte[fs.Length];
-                using (var br = new BinaryReader(fs))
-                {
-                    br.Read(buffer, 0, buffer.Length);
-                }
-            }
+                DirectoryInfo Data = Directory.CreateDirectory(file_path);
+                DirectoryInfo Entrada = Directory.CreateDirectory(file_path + "\\Entrada");
+                DirectoryInfo Salida = Directory.CreateDirectory(file_path + "\\Salida");
 
+            }
+        }
+
+        public void GeyKeys(string path, string p, string q)
+        {
             Parameters parameters = new Parameters();
-            string file_path_key = path + $"\\Data\\temporal\\{key_name}";
-            string[] nameKey = key_name.Split(".");
-            using(StreamReader keys = new StreamReader(file_path_key))
+            try
             {
-                parameters.n = int.Parse(keys.ReadLine());
-                if (nameKey[0] == "private")
+                if(File.Exists($"{path}/../keys.zip"))
+                    File.Delete($"{path}/../keys.zip");
+                if (File.Exists(path + "\\public.key"))
+                    File.Delete(path + "\\public.key");
+                if (File.Exists(path + "\\private.key"))
+                    File.Delete(path + "\\private.key");
+
+                parameters.p = int.Parse(p);
+                parameters.q = int.Parse(q);
+                RSA_Algorithm keys = new RSA_Algorithm();
+                parameters = keys.GetKey(parameters); ;
+
+                FileStream publickeys = new FileStream((path + "\\public.key"), FileMode.Create) ;
+                publickeys.Close();
+                FileStream privatekeys = new FileStream((path + "\\private.key"), FileMode.Create);
+                privatekeys.Close();
+
+                using (StreamWriter writer = new StreamWriter(path + "\\public.key"))
                 {
-                    parameters.d = int.Parse(keys.ReadLine());
-                    parameters.e = parameters.d;
+                    writer.WriteLine(parameters.n);
+                    writer.WriteLine(parameters.e);
                 }
-                else if (nameKey[0] == "public")
+
+                using (StreamWriter writer = new StreamWriter(path + "\\private.key"))
                 {
-                    parameters.e = int.Parse(keys.ReadLine());
-                    parameters.d = parameters.e;
+                    writer.WriteLine(parameters.n);
+                    writer.WriteLine(parameters.d);
                 }
 
             }
+            catch (Exception)
+            {
 
-            byte[] result;
-            string extension = file_name.Split(".")[1];
-            switch (extension)
-            {
-                case "txt":
-                    result = new RSA_Algorithm().Encrypt(parameters,buffer);
-                    OutFileName = nameOut + ".rsa";
-                    OutFilePath = path + $"\\Data\\Salida\\" + OutFileName + ".rsa";
-                    break;
-                case "rsa":
-                    result = new RSA_Algorithm().Decrypt(parameters, buffer);
-                    OutFileName = nameOut + ".txt";
-                    OutFilePath = path + $"\\Data\\Salida\\" + OutFileName + ".txt";
-                    break;
-                default: throw new Exception();
-            }
-            using (var fs = new FileStream(OutFilePath, FileMode.OpenOrCreate))
-            {
-                fs.Write(result, 0, result.Length);
+                throw;
             }
         }
 
-
-        public static byte[] ConvertToByte(string content)
-        {
-            byte[] array = new byte[content.Length];
-            for (int i = 0; i < array.Length; i++)
-            {
-                array[i] = Convert.ToByte(content[i]);
-            }
-            return array;
-        }
     }
 }
 
