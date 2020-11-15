@@ -53,5 +53,28 @@ namespace LAB_6___API.Controllers
                 return StatusCode(500);
             }
         }
+
+        [HttpPost("rsa/{nombre}")]
+        public ActionResult EncryptOrDecryptFile([FromForm] IFormFile file, [FromForm] IFormFile key, string nombre)
+        {
+            try
+            {
+                string file_path = environment.ContentRootPath;
+                string file_name = file.FileName;
+                string key_name = key.FileName;
+
+                FileManage file_manager = new FileManage();
+                file_manager.SaveFile(file, file_path, file_name);
+                file_manager.SaveFile(key, file_path, key_name);
+                file_manager.EncryptOrDecryptManage(file_path, file_name, key_name, nombre);
+
+                FileStream result = new FileStream(file_manager.OutFilePath, FileMode.Open);
+                return File(result, "text/plain", file_manager.OutFileName);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
+        }
     }
 }
