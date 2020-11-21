@@ -69,7 +69,7 @@ namespace LAB_6___API.Controllers
                 file_manager.EncryptOrDecryptManage(file_path, file_name, key_name, nombre);
 
                 FileStream result = new FileStream(file_manager.OutFilePath, FileMode.Open);
-                return File(result, "text/plain", file_manager.OutFileName);
+                return File(result, "text/plain", file_manager.OutFileName );
             }
             catch (Exception)
             {

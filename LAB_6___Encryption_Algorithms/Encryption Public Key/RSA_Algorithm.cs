@@ -66,6 +66,7 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         {
             P = data.p;
             Q = data.q;
+            N = P * Q;
             if (CheckPrimeNumber(P) && CheckPrimeNumber(Q))
             {
                 Parameters keys = new Parameters() { p = P, q = Q};
@@ -73,6 +74,12 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
                 Fhi = (P - 1) * (Q - 1);
                 GetE();
                 D = GetD();
+
+                if (D == E)
+                {
+                    D += Fhi;
+                }
+
                 keys.e = E;
                 keys.d = D;
                 return keys;
@@ -115,10 +122,12 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
         void GetE()
         {
             List<int> randoms = new List<int>();
+            Random eRandom = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
             int e = 1;
             do
-            {
+            { 
                 e++;
+
             } while (!chekedE(e) && e < Fhi);
             E = e;
         }
@@ -160,8 +169,16 @@ namespace LAB_6___Encryption_Algorithms.Encryption_Public_Key
             {
                 List<int> multiplesFhi = GetMultiples(Fhi);
                 List<int> multiplesE = GetMultiples(e);
+                List<int> multiplesN = GetMultiples(N);
 
                 foreach (var item in multiplesFhi)
+                {
+                    if (multiplesE.Contains(item))
+                    {
+                        return false;
+                    }
+                }
+                foreach (var item in multiplesN)
                 {
                     if (multiplesE.Contains(item))
                     {
